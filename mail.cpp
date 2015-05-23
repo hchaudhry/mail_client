@@ -1,8 +1,5 @@
 #include "mail.h"
 
-#include <string>
-#include <iostream>
-
 #include <Poco/Net/MailMessage.h>
 #include <Poco/Net/MailRecipient.h>
 #include <Poco/Net/SecureSMTPClientSession.h>
@@ -18,7 +15,6 @@
 #include <Poco/Net/SecureStreamSocket.h>
 #include <Poco/Net/ConsoleCertificateHandler.h>
 
-using namespace std;
 using namespace Poco::Net;
 using namespace Poco;
 
@@ -27,22 +23,49 @@ Mail::Mail()
 
 }
 
+Mail::Mail(string _host, int _port, string _user, string _pass)
+{
+    host = _host;
+    port = _port;
+    user = _user;
+    pass = _pass;
+}
+
+Mail::Mail(const Mail &_mail)
+{
+    host = _mail.host;
+    port = _mail.port;
+    user = _mail.user;
+    pass = _mail.pass;
+}
+
+Mail& Mail::operator =(const Mail &_mail)
+{
+    host = _mail.host;
+    port = _mail.port;
+    user = _mail.user;
+    pass = _mail.pass;
+
+    return *this;
+
+}
+
 Mail::~Mail()
 {
 
 }
 
-int Mail::send()
+int Mail::send(string _host, int _port, string _user, string _password, string _to, string _from, string _subject, string _encoding, string _content)
 {
-    string host = "smtp.gmail.com";
-    UInt16 port = 587;
-    string user = "chaudhry.hussam@gmail.com";
-    string password = "";
-    string to = "hussam_210x@hotmail.fr";
-    string from = "chaudhry.hussam@gmail.com";
-    string subject = "Your first e-mail message sent using Poco Libraries";
-    subject = MailMessage::encodeWord(subject, "UTF-8");
-    string content = "Well done! You've successfully sent your first message using Poco SMTPClientSession";
+    host = _host;
+    port = _port;
+    user = _user;
+    pass = _password;
+    to = _to;
+    from = _from;
+    subject = _subject;
+    subject = MailMessage::encodeWord(subject, _encoding);
+    content = _content;
 
     MailMessage message;
     message.setSender(from);
@@ -64,7 +87,7 @@ int Mail::send()
             session.login();
             // Upgrades to secured connection once the information is sent
             if (session.startTLS()) {
-                session.login(SMTPClientSession::AUTH_LOGIN, user, password);
+                session.login(SMTPClientSession::AUTH_LOGIN, user, pass);
                 session.sendMessage(message);
                 cout << "Message successfully sent" << endl;
             }
@@ -85,12 +108,12 @@ int Mail::send()
     return 0;
 }
 
-int Mail::fetch()
+int Mail::fetch(string _host, int _port, string _user, string _password)
 {
-    string host = "pop.gmail.com";
-    int port = 995;
-    string user = "chaudhry.hussam";
-    string pass = "";
+    host = _host;
+    port = _port;
+    user = _user;
+    pass = _password;
 
     try {
         initializeSSL();
@@ -124,7 +147,13 @@ int Mail::fetch()
         cerr << e.displayText() << endl;
         uninitializeSSL();
     }
-
     return 0;
+}
+
+void Mail::runThread()
+{
+    std::thread t1(&Mail::fetch, this, "pop.gmail.com", 995, "mail@fff.ccom", "");
+
+    t1.join();
 }
 
