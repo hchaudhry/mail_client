@@ -11,10 +11,9 @@ int main(int argc, char *argv[])
 {
 
     Mail mail;
-    mail.send("smtp.gmail.com", 587, "chaudhry.tablette", "pwd", "chaudhry.tablette@gmail.com", "chaudhry.hussam@gmail.com", "WESH", "UTF-8", "Tien mon mail!!!");
-    mail.runThread();
-    //mail.fetch("pop.gmail.com", 995, "chaudhry.hussam", "pwd");
-
+    mail.send("smtp.gmail.com", 587, "chaudhry.tablette", "", "chaudhry.hussam@gmail.com", "chaudhry.tablette@gmail.com", "Sujet", "UTF-8", "grmgmkrmtkgmlrkt");
+    //mail.runThread();
+    //mail.fetch("pop.gmail.com", 995, "chaudhry.tablette", "pwd");
 
     QApplication a(argc, argv);
     MainWindow w;

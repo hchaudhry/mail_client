@@ -15,6 +15,11 @@
 #include <Poco/Net/SecureStreamSocket.h>
 #include <Poco/Net/ConsoleCertificateHandler.h>
 
+#include <Poco/Net/PartSource.h>
+#include <Poco/Net/StringPartSource.h>
+#include <Poco/Net/FilePartSource.h>
+
+
 using namespace Poco::Net;
 using namespace Poco;
 
@@ -72,7 +77,11 @@ int Mail::send(string _host, int _port, string _user, string _password, string _
     message.addRecipient(MailRecipient(MailRecipient::PRIMARY_RECIPIENT, to));
     message.setSubject(subject);
     message.setContentType("text/plain; charset=UTF-8");
-    message.setContent(content, MailMessage::ENCODING_8BIT);
+
+    message.addContent(new Poco::Net::StringPartSource(content), MailMessage::ENCODING_8BIT);
+
+    //Poco::Net::PartSource* pImagePart = new FilePartSource("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", "text/plain");
+    //message.addAttachment("uids", pImagePart);
 
     try {
         initializeSSL();
@@ -126,18 +135,52 @@ int Mail::fetch(string _host, int _port, string _user, string _password)
         POP3ClientSession session(socket);
         // login
         session.login(user, pass);
-        POP3ClientSession::MessageInfoVec messages;
-        // list all the messages
-        session.listMessages(messages);
-        for(auto i = messages.begin(); i != messages.end(); ++i) {
-            MessageHeader header;
-            session.retrieveHeader((*i).id, header);
-            cout << "ID: "      << (*i).id << ", "
-                 << "Size: "    << (*i).size << " bytes" << endl
-                 << "From: "    << header.get("From") << endl
-                 << "Subject: " << header.get("Subject") << endl
-                 << "Date: "    << header.get("Date") << endl << endl;
+
+        //count messages
+        int totalMessages = session.messageCount();
+
+        std::ifstream inFile("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt");
+        int numFromFile = std::count(std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>(), '\n');
+
+        if(numFromFile != totalMessages || numFromFile == NULL)
+        {
+            if(numFromFile == NULL)
+                numFromFile = 0;
+
+            POP3ClientSession::MessageInfoVec messages;
+            // list all the messages
+            session.listMessages(messages);
+
+            ofstream myfile;
+            myfile.open ("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", ios::out | ios::app);
+
+            if (!myfile.is_open())
+            {
+                cout << "Error opening file";
+            }
+
+            auto it = messages.begin();
+
+            for(auto i = std::next(it, numFromFile); i != messages.end(); ++i) {
+                MessageHeader header;
+                session.retrieveHeader((*i).id, header);
+                cout << "ID: "      << (*i).id << ", "
+                     << "Size: "    << (*i).size << " bytes" << endl
+                     << "From: "    << header.get("From") << endl
+                     << "Subject: " << header.get("Subject") << endl
+                     << "Date: "    << header.get("Date") << endl << endl;
+
+
+                  myfile << (*i).id << endl;
+
+            }
+            myfile.close();
         }
+        else
+        {
+            cout << "No new message !" << endl;
+        }
+
         session.close();
         uninitializeSSL();
     } catch (POP3Exception &e) {
@@ -150,10 +193,19 @@ int Mail::fetch(string _host, int _port, string _user, string _password)
     return 0;
 }
 
+void Mail::mailThread()
+{
+    while (1) {
+        std::thread thread(&Mail::fetch, this, "pop.gmail.com", 995, "chaudhry.tablette", "");
+        thread.join();
+        //thread.detach();
+        std::this_thread::sleep_for (std::chrono::seconds(15));
+    }
+}
+
 void Mail::runThread()
 {
-    std::thread t1(&Mail::fetch, this, "pop.gmail.com", 995, "mail@fff.ccom", "");
-
-    t1.join();
+    std::thread globalThread(&Mail::mailThread, this);
+    globalThread.detach();
 }
 

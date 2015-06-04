@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <chrono>
+#include <fstream>
 
 using namespace std;
 
@@ -19,6 +21,7 @@ public:
     int send(string _host, int _port, string _user, string _password, string _to, string _from, string _subject, string _encoding, string _content);
     int fetch(string _host, int _port, string _user, string _password);
 
+    void mailThread();
     void runThread();
 
 private:
