@@ -18,6 +18,13 @@
 #include <Poco/Net/PartSource.h>
 #include <Poco/Net/StringPartSource.h>
 #include <Poco/Net/FilePartSource.h>
+#include <Poco/Net/PartHandler.h>
+
+#include <QFile>
+#include <QFileInfo>
+#include <QDebug>
+
+#include "myparthandler.h"
 
 
 using namespace Poco::Net;
@@ -60,28 +67,43 @@ Mail::~Mail()
 
 }
 
-int Mail::send(string _host, int _port, string _user, string _password, string _to, string _from, string _subject, string _encoding, string _content)
+int Mail::send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths)
 {
-    host = _host;
+    //string _host, int _port, string _user, string _password,
+    /*host = _host;
     port = _port;
     user = _user;
-    pass = _password;
-    to = _to;
+    pass = _password;*/
+    /*to = _to;
     from = _from;
     subject = _subject;
     subject = MailMessage::encodeWord(subject, _encoding);
     content = _content;
+    paths = _paths;*/
 
     MailMessage message;
-    message.setSender(from);
-    message.addRecipient(MailRecipient(MailRecipient::PRIMARY_RECIPIENT, to));
-    message.setSubject(subject);
+    message.setSender(_from);
+    message.addRecipient(MailRecipient(MailRecipient::PRIMARY_RECIPIENT, _to));
+    _subject = MailMessage::encodeWord(_subject, _encoding);
+    message.setSubject(_subject);
     message.setContentType("text/plain; charset=UTF-8");
 
-    message.addContent(new Poco::Net::StringPartSource(content), MailMessage::ENCODING_8BIT);
+    message.addContent(new Poco::Net::StringPartSource(_content), MailMessage::ENCODING_8BIT);
 
-    //Poco::Net::PartSource* pImagePart = new FilePartSource("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", "text/plain");
-    //message.addAttachment("uids", pImagePart);
+    /*Poco::Net::PartSource* pImagePart = new FilePartSource("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", "text/plain");
+    message.addAttachment("uids", pImagePart);*/
+
+    for(std::vector<string>::iterator it = _paths.begin(); it != _paths.end(); ++it) {
+        FileMimeType file;
+        string path = *it;
+        string type = file.getMimeType(path);
+
+        QFileInfo f(QString::fromStdString(path));
+
+        Poco::Net::PartSource* pImagePart = new FilePartSource(path, type);
+        QString fileName = f.fileName();
+        message.addAttachment(fileName.toStdString(), pImagePart);
+    }
 
     try {
         initializeSSL();
@@ -113,16 +135,17 @@ int Mail::send(string _host, int _port, string _user, string _password, string _
         cerr << e.displayText() << endl;
         return 0;
     }
-
     return 0;
 }
 
-int Mail::fetch(string _host, int _port, string _user, string _password)
+vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string _password)
 {
     host = _host;
     port = _port;
     user = _user;
     pass = _password;
+
+    vector<vector<string>> listMessages;
 
     try {
         initializeSSL();
@@ -170,6 +193,12 @@ int Mail::fetch(string _host, int _port, string _user, string _password)
                      << "Subject: " << header.get("Subject") << endl
                      << "Date: "    << header.get("Date") << endl << endl;
 
+                vector<string> row;
+                row.push_back(to_string((*i).id));
+                row.push_back(header.get("From"));
+                row.push_back(header.get("Subject"));
+                row.push_back(header.get("Date"));
+                listMessages.push_back(row);
 
                   myfile << (*i).id << endl;
 
@@ -190,7 +219,7 @@ int Mail::fetch(string _host, int _port, string _user, string _password)
         cerr << e.displayText() << endl;
         uninitializeSSL();
     }
-    return 0;
+    return listMessages;
 }
 
 void Mail::mailThread()
@@ -209,3 +238,88 @@ void Mail::runThread()
     globalThread.detach();
 }
 
+string Mail::getMessageContent(int id)
+{
+    string host = "pop.gmail.com";
+    int port = 995;
+    string user = "chaudhry.tablette@gmail.com";
+    string pass = "hussam77210";
+    string content;
+
+    try {
+        initializeSSL();
+        // always accept even if error occurred
+        SharedPtr<InvalidCertificateHandler> ptrHandler = new AcceptCertificateHandler(false);
+        Context::Ptr ptrContext = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+        SSLManager::instance().initializeClient(0, ptrHandler, ptrContext);
+        SocketAddress socketAddress(host, port);
+        SecureStreamSocket socket(socketAddress, ptrContext);
+        POP3ClientSession session(socket);
+        // login
+        session.login(user, pass);
+        qDebug() << id;
+        MailMessage message;
+        MyPartHandler partHandler;
+
+        session.retrieveMessage(id, message, partHandler);
+
+        stringstream headersSS;
+        message.write(headersSS);
+
+        vector<string> partHeaders = partHandler.GetHeaders();
+        for (unsigned int j=0; j < partHeaders.size(); j++) {
+          headersSS << partHeaders[j];
+        }
+
+        if (message.isMultipart()) {
+          content = partHandler.GetBody();
+        } else {
+          // Save body content only if [name] property doesn't exist in ContentType
+          string ct_filename = message.getContentType();
+          if (ct_filename.size() == 0) {
+            content = message.getContent();
+          }
+        }
+
+        session.close();
+        uninitializeSSL();
+    } catch (POP3Exception &e) {
+        cerr << e.displayText() << endl;
+        uninitializeSSL();
+    } catch (NetException &e) {
+        cerr << e.displayText() << endl;
+        uninitializeSSL();
+    }
+    return content;
+}
+
+/*
+void Mail::prepareMail(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths)
+{
+    MailMessage message;
+    message.setSender(_from);
+    message.addRecipient(MailRecipient(MailRecipient::PRIMARY_RECIPIENT, _to));
+    _subject = MailMessage::encodeWord(_subject, _encoding);
+    message.setSubject(_subject);
+    message.setContentType("text/plain; charset=UTF-8");
+
+    message.addContent(new Poco::Net::StringPartSource(_content), MailMessage::ENCODING_8BIT);
+
+    //Poco::Net::PartSource* pImagePart = new FilePartSource("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", "text/plain");
+    //message.addAttachment("uids", pImagePart);
+
+    for(std::vector<string>::iterator it = _paths.begin(); it != _paths.end(); ++it) {
+        FileMimeType file;
+        string path = *it;
+        string type = file.getMimeType(path);
+
+        QFileInfo f(QString::fromStdString(path));
+
+        Poco::Net::PartSource* pImagePart = new FilePartSource(path, type);
+        QString fileName = f.fileName();
+        message.addAttachment(fileName.toStdString(), pImagePart);
+    }
+
+    send(message);
+}
+*/

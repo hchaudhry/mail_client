@@ -6,8 +6,37 @@
 #include <thread>
 #include <chrono>
 #include <fstream>
+#include <vector>
+#include <QString>
+#include "filemimetype.h"
+
+#include <Poco/Net/MailMessage.h>
+#include <Poco/Net/MailRecipient.h>
+#include <Poco/Net/SecureSMTPClientSession.h>
+#include <Poco/Net/NetException.h>
+#include <Poco/Net/Context.h>
+#include <Poco/Net/SSLManager.h>
+#include <Poco/Net/AcceptCertificateHandler.h>
+#include <Poco/AutoPtr.h>
+
+#include <Poco/Net/MessageHeader.h>
+#include <Poco/Net/NetException.h>
+#include <Poco/Net/POP3ClientSession.h>
+#include <Poco/Net/SecureStreamSocket.h>
+#include <Poco/Net/ConsoleCertificateHandler.h>
+
+#include <Poco/Net/PartSource.h>
+#include <Poco/Net/StringPartSource.h>
+#include <Poco/Net/FilePartSource.h>
+#include <Poco/Net/PartHandler.h>
+
+#include <QFile>
+#include <QFileInfo>
+#include <QDebug>
 
 using namespace std;
+using namespace Poco::Net;
+using namespace Poco;
 
 class Mail
 {
@@ -18,11 +47,14 @@ public:
     Mail & operator= (Mail const &_mail);
     ~Mail();
 
-    int send(string _host, int _port, string _user, string _password, string _to, string _from, string _subject, string _encoding, string _content);
-    int fetch(string _host, int _port, string _user, string _password);
+    int send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths);
+    vector<vector<string>> fetch(string _host, int _port, string _user, string _password);
+    string getMessageContent(int id);
 
     void mailThread();
     void runThread();
+
+    //void prepareMail(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths);
 
 private:
 
@@ -31,11 +63,13 @@ private:
     string user;
     string pass;
 
-    string to;
+    /*string to;
     string from;
     string subject;
     string encoding;
     string content;
+    vector<string> paths;*/
+
 };
 
 #endif // MAIL_H
