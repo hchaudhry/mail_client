@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include <string>
 #include "mail.h"
 #include "fileexplorerdialog.h"
 #include "clientinfodialog.h"
@@ -45,8 +46,11 @@ MainWindow::MainWindow(QWidget *parent) :
     dialog.setModal(true);
     dialog.exec();
 
-    qDebug() << dialog.getemail();
-    qDebug() << dialog.getpassword();
+    userEmail = dialog.getemail().toStdString();
+    userPwd = dialog.getpassword().toStdString();
+
+    //prepareMail();
+    tableViewEmails();
 }
 
 MainWindow::~MainWindow()
@@ -54,8 +58,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QStandardItemModel* MainWindow::tableViewEmails(vector<vector<string> > listMessages)
+QStandardItemModel* MainWindow::tableViewEmails()
 {
+    vector<vector<string>> listMessages;
+
+    while (listMessages.size() == 0)
+    {
+     listMessages = mail.fetch("pop.gmail.com", 995, userEmail, userPwd);
+    }
+
     const int numRows = listMessages.size();
     const int numColumns = 3;
 
@@ -93,7 +104,11 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     rowNumber = rowNumber + 1;
 
     //Mail m;
-    QString texte = QString::fromStdString(mail.getMessageContent(rowNumber));
+    QString texte;
+
+    while (texte.isEmpty()) {
+        texte = QString::fromStdString(mail.getMessageContent(rowNumber, userEmail, userPwd));
+    }
 
     ui->email_conten_box->clear();
     ui->email_conten_box->setText(texte);
@@ -116,4 +131,11 @@ void MainWindow::on_file_explorer_btn_clicked()
     dialog.exec();
     pathes.push_back(dialog.getPathResult().toStdString());
 
+}
+
+void MainWindow::prepareMail()
+{
+    Mail _mail("smtp.gmail.com", 587, userEmail, userPwd);
+
+    mail = _mail;
 }

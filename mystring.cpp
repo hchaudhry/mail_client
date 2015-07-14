@@ -388,8 +388,7 @@ string MyString::ToLower(const string &source)
     std::locale loc;
 
     for (std::string::size_type i=0; i<source.length(); ++i)
-        toReturn = std::tolower(source[i],loc);
-
+        toReturn += std::tolower(source[i],loc);
 
     return toReturn;
 }

@@ -5,6 +5,7 @@
 #include <QtGui>
 #include <vector>
 #include "mail.h"
+#include <string>
 
 using namespace std;
 
@@ -20,8 +21,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QStandardItemModel* tableViewEmails(vector<vector<string>> listMessages);
+    QStandardItemModel* tableViewEmails();
     void setMail(Mail const & mail);
+
+    void prepareMail();
 
 private slots:
     void on_tableView_doubleClicked(const QModelIndex &index);
@@ -34,6 +37,9 @@ private:
     Ui::MainWindow *ui;
     vector<string> pathes;
     Mail mail;
+
+    string userEmail;
+    string userPwd;
 };
 
 #endif // MAINWINDOW_H

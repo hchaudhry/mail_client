@@ -49,7 +49,7 @@ public:
 
     int send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths);
     vector<vector<string>> fetch(string _host, int _port, string _user, string _password);
-    string getMessageContent(int id);
+    string getMessageContent(int id, string user, string password);
 
     void mailThread();
     void runThread();

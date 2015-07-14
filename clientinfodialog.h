@@ -21,6 +21,8 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
+    void on_passwordText_textChanged(const QString &arg1);
+
 private:
     Ui::ClientInfoDialog *ui;
 

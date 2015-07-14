@@ -238,13 +238,13 @@ void Mail::runThread()
     globalThread.detach();
 }
 
-string Mail::getMessageContent(int id)
+string Mail::getMessageContent(int id, string user, string password)
 {
     string host = "pop.gmail.com";
     int port = 995;
-    string user = "chaudhry.tablette@gmail.com";
-    string pass = "***";
     string content;
+    vector<string> filenames;
+    vector<string> attachments;
 
     try {
         initializeSSL();
@@ -256,8 +256,8 @@ string Mail::getMessageContent(int id)
         SecureStreamSocket socket(socketAddress, ptrContext);
         POP3ClientSession session(socket);
         // login
-        session.login(user, pass);
-        qDebug() << id;
+        session.login(user, password);
+
         MailMessage message;
         MyPartHandler partHandler;
 
@@ -273,11 +273,21 @@ string Mail::getMessageContent(int id)
 
         if (message.isMultipart()) {
           content = partHandler.GetBody();
+
+          filenames = partHandler.GetFilenames();
+          attachments = partHandler.GetAttachments();
         } else {
           // Save body content only if [name] property doesn't exist in ContentType
           string ct_filename = message.getContentType();
           if (ct_filename.size() == 0) {
             content = message.getContent();
+          }
+
+          string ct_filename_c = message.getContentType();
+          if(ct_filename_c.size() > 0) {
+            filenames.push_back(ct_filename_c);
+            // Step 2: Retrieve the body content (attachment)
+            attachments.push_back(message.getContent());
           }
         }
 
@@ -290,6 +300,15 @@ string Mail::getMessageContent(int id)
         cerr << e.displayText() << endl;
         uninitializeSSL();
     }
+
+    if (filenames.empty()) {
+        qDebug() << "Vide";
+    }
+
+    for(std::vector<string>::iterator it = filenames.begin(); it != filenames.end(); ++it) {
+        std::cout << *it << std::endl;
+    }
+
     return content;
 }
 
