@@ -243,7 +243,7 @@ string Mail::getMessageContent(int id)
     string host = "pop.gmail.com";
     int port = 995;
     string user = "chaudhry.tablette@gmail.com";
-    string pass = "hussam77210";
+    string pass = "***";
     string content;
 
     try {

@@ -18,12 +18,12 @@ int main(int argc, char *argv[])
 {
     vector<vector<string>> listeMessages;
 
-    Mail mail("smtp.gmail.com", 587, "chaudhry.tablette", "hussam77210");
+    Mail mail("smtp.gmail.com", 587, "chaudhry.tablette", "**");
     //mail.initSMTPSession();
 
     //mail.send("smtp.gmail.com", 587, "chaudhry.tablette", "", "chaudhry.hussam@gmail.com", "chaudhry.tablette@gmail.com", "Sujet", "UTF-8", "grmgmkrmtkgmlrkt");
     //mail.runThread();
-    //listeMessages = mail.fetch("pop.gmail.com", 995, "chaudhry.tablette", "hussam77210");
+    //listeMessages = mail.fetch("pop.gmail.com", 995, "chaudhry.tablette", "***");
 
     /*FileMimeType file;
 
