@@ -33,6 +33,8 @@ private slots:
 
     void on_file_explorer_btn_clicked();
 
+    void on_delete_attachment_clicked();
+
 private:
     Ui::MainWindow *ui;
     vector<string> pathes;
@@ -40,6 +42,8 @@ private:
 
     string userEmail;
     string userPwd;
+
+    QStringList list;
 };
 
 #endif // MAINWINDOW_H

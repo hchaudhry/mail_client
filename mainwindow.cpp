@@ -33,6 +33,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDebug>
+#include <QSqlQueryModel>
 
 using namespace std;
 
@@ -48,6 +49,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     userEmail = dialog.getemail().toStdString();
     userPwd = dialog.getpassword().toStdString();
+
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    //ui->tableView->horizontalHeader()->hide();
+    ui->tableView->verticalHeader()->hide();
 
     //prepareMail();
     tableViewEmails();
@@ -68,7 +73,7 @@ QStandardItemModel* MainWindow::tableViewEmails()
     }
 
     const int numRows = listMessages.size();
-    const int numColumns = 3;
+    const int numColumns = 4;
 
     int r = 0;
     int c = 0;
@@ -76,6 +81,11 @@ QStandardItemModel* MainWindow::tableViewEmails()
     QStandardItemModel* model = new QStandardItemModel(numRows, numColumns);
     vector< vector<string> >::iterator row;
     vector<string>::iterator col;
+
+    model->setHeaderData( 0, Qt::Horizontal, QObject::tr("ID") );
+    model->setHeaderData( 1, Qt::Horizontal, QObject::tr("Expéditeur") );
+    model->setHeaderData( 2, Qt::Horizontal, QObject::tr("Sujet") );
+    model->setHeaderData( 3, Qt::Horizontal, QObject::tr("Date") );
 
     for (row = listMessages.begin(); row != listMessages.end(); row++) {
         for (col = row->begin(); col != row->end(); col++) {
@@ -110,6 +120,9 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
         texte = QString::fromStdString(mail.getMessageContent(rowNumber, userEmail, userPwd));
     }
 
+    ui->to_textbox->setText(index.sibling(rowNumber-1, 1).data().toString());
+    ui->subject_textbox->setText(index.sibling(rowNumber-1, 2).data().toString());
+
     ui->email_conten_box->clear();
     ui->email_conten_box->setText(texte);
 }
@@ -131,6 +144,16 @@ void MainWindow::on_file_explorer_btn_clicked()
     dialog.exec();
     pathes.push_back(dialog.getPathResult().toStdString());
 
+
+    QStringListModel *model = new QStringListModel(this);
+    list.clear();
+
+    for(vector<string>::iterator it = pathes.begin(); it != pathes.end(); ++it) {
+        list << QString::fromStdString(*it);
+    }
+
+    model->setStringList(list);
+    ui->attachments_listview->setModel(model);
 }
 
 void MainWindow::prepareMail()
@@ -138,4 +161,19 @@ void MainWindow::prepareMail()
     Mail _mail("smtp.gmail.com", 587, userEmail, userPwd);
 
     mail = _mail;
+}
+
+void MainWindow::on_delete_attachment_clicked()
+{
+    QString selectecRow;
+
+    QModelIndexList selected = ui->attachments_listview->selectionModel()->selectedIndexes();
+    if (!selected.isEmpty())
+    {
+        selectecRow = list.at(selected.first().row());
+        list.removeAt(selected.first().row());
+        ((QStringListModel*) ui->attachments_listview->model())->setStringList(list);
+    }
+
+    pathes.erase(std::remove(pathes.begin(), pathes.end(), selectecRow.toStdString()), pathes.end());
 }
