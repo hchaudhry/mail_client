@@ -26,7 +26,9 @@ SOURCES += main.cpp\
     fileexplorerdialog.cpp \
     myparthandler.cpp \
     mystring.cpp \
-    clientinfodialog.cpp
+    clientinfodialog.cpp \
+    emailsenddialog.cpp \
+    emailsendfaildialog.cpp
 
 HEADERS  += mainwindow.h \
     mail.h \
@@ -41,11 +43,15 @@ HEADERS  += mainwindow.h \
     utf8/core.h \
     utf8/unchecked.h \
     utf8.h \
-    clientinfodialog.h
+    clientinfodialog.h \
+    emailsenddialog.h \
+    emailsendfaildialog.h
 
 FORMS    += mainwindow.ui \
     fileexplorerdialog.ui \
-    clientinfodialog.ui
+    clientinfodialog.ui \
+    emailsenddialog.ui \
+    emailsendfaildialog.ui
 
 unix:!macx: LIBS += -L$$PWD/lib/ -lPocoNet
 

@@ -81,6 +81,8 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
     content = _content;
     paths = _paths;*/
 
+    int returnValue = 0;
+
     MailMessage message;
     message.setSender(_from);
     message.addRecipient(MailRecipient(MailRecipient::PRIMARY_RECIPIENT, _to));
@@ -111,7 +113,7 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
         Context::Ptr ptrContext = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
         SSLManager::instance().initializeClient(0, ptrHandler, ptrContext);
 
-        SecureSMTPClientSession session(host, port);
+        SecureSMTPClientSession session("smtp.gmail.com", 587);
 
         try {
             // TLS begins with an unsecured connection
@@ -120,7 +122,7 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
             if (session.startTLS()) {
                 session.login(SMTPClientSession::AUTH_LOGIN, user, pass);
                 session.sendMessage(message);
-                cout << "Message successfully sent" << endl;
+                returnValue = 1;
             }
             session.close();
             uninitializeSSL();
@@ -128,14 +130,14 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
             cerr << e.displayText() << endl;
             session.close();
             uninitializeSSL();
-            return 0;
+            return returnValue;
         }
     }
     catch (NetException &e) {
         cerr << e.displayText() << endl;
-        return 0;
+        return returnValue;
     }
-    return 0;
+    return returnValue;
 }
 
 vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string _password)

@@ -9,6 +9,8 @@
 #include "mail.h"
 #include "fileexplorerdialog.h"
 #include "clientinfodialog.h"
+#include "emailsenddialog.h"
+#include "emailsendfaildialog.h"
 
 #include <Poco/Net/MailMessage.h>
 #include <Poco/Net/MailRecipient.h>
@@ -133,8 +135,25 @@ void MainWindow::on_sendButton_clicked()
     QString subject = ui->subject_textbox->text();
     QString textContent = ui->email_conten_box->toPlainText();
 
+    QStringListModel *model = new QStringListModel(this);
+    list.clear();
+    model->setStringList(list);
+    ui->attachments_listview->setModel(model);
+
     //Mail mail;
-    mail.send(toTextBox.toStdString(), "chaudhry.tablette@gmail.com", subject.toStdString(), "UTF-8", textContent.toStdString(), pathes);
+    int isSend;
+    isSend = mail.send(toTextBox.toStdString(), userEmail, subject.toStdString(), "UTF-8", textContent.toStdString(), pathes);
+
+    if (isSend == 1)
+    {
+        EmailSendDialog dialog;
+        dialog.setModal(true);
+        dialog.exec();
+    } else {
+        EmailSendFailDialog dialog;
+        dialog.setModal(true);
+        dialog.exec();
+    }
 }
 
 void MainWindow::on_file_explorer_btn_clicked()
@@ -145,6 +164,7 @@ void MainWindow::on_file_explorer_btn_clicked()
     pathes.push_back(dialog.getPathResult().toStdString());
 
 
+    // Affiche des fichiers dans la listView en bas à gauche
     QStringListModel *model = new QStringListModel(this);
     list.clear();
 
