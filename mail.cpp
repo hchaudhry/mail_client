@@ -25,6 +25,7 @@
 #include <QDebug>
 
 #include "myparthandler.h"
+#include "mainwindow.h"
 
 
 using namespace Poco::Net;
@@ -221,10 +222,14 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
         cerr << e.displayText() << endl;
         uninitializeSSL();
     }
+
+    //MainWindow m("d");
+    //m.tableViewEmails(listMessages);
+
     return listMessages;
 }
 
-void Mail::mailThread(string userMail, string pwd)
+/*void Mail::mailThread(string userMail, string pwd)
 {
     while (1) {
         std::thread thread(&Mail::fetch, this, "pop.gmail.com", 995, userMail, pwd);
@@ -237,7 +242,7 @@ void Mail::runThread(string userMail, string pwd)
 {
     std::thread globalThread(&Mail::mailThread, this, userMail, pwd);
     globalThread.detach();
-}
+}*/
 
 string Mail::getMessageContent(int id, string user, string password)
 {

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
 #include "mail.h"
 #include "fileexplorerdialog.h"
 #include "clientinfodialog.h"
@@ -36,6 +37,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QSqlQueryModel>
+#include <QTimer>
 
 using namespace std;
 
@@ -56,8 +58,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView->verticalHeader()->hide();
 
     prepareMail();
-    tableViewEmails();
-    mail.runThread(userEmail, userPwd);
+
+    //vector<vector<string>> messages;
+    while (messages.size() == 0)
+    {
+        messages = mail.fetch("pop.gmail.com", 995, userEmail, userPwd);
+    }
+    tableViewEmails(messages);
+
+    runThread(userEmail, userPwd);
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(5000);
 }
 
 MainWindow::~MainWindow()
@@ -65,14 +77,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QStandardItemModel* MainWindow::tableViewEmails()
+QStandardItemModel* MainWindow::tableViewEmails(vector<vector<string>> listMessages)
 {
-    vector<vector<string>> listMessages;
+    /*vector<vector<string>> listMessages;
 
     while (listMessages.size() == 0)
     {
      listMessages = mail.fetch("pop.gmail.com", 995, userEmail, userPwd);
-    }
+    }*/
 
     const int numRows = listMessages.size();
     const int numColumns = 4;
@@ -196,4 +208,35 @@ void MainWindow::on_delete_attachment_clicked()
     }
 
     pathes.erase(std::remove(pathes.begin(), pathes.end(), selectecRow.toStdString()), pathes.end());
+}
+
+void MainWindow::fetchMails(string _user, string _password)
+{
+    vector<vector<string>> mess;
+    mess = mail.fetch("pop.gmail.com", 995, _user, _password);
+    messages.insert(messages.end(), mess.begin(), mess.end());
+
+}
+
+void MainWindow::mailThread(string userMail, string pwd)
+{
+    while (1) {
+        std::thread thread(&MainWindow::fetchMails, this, userMail, pwd);
+        thread.join();
+        std::this_thread::sleep_for (std::chrono::seconds(5));
+    }
+}
+
+void MainWindow::runThread(string userMail, string pwd)
+{
+    std::thread globalThread(&MainWindow::mailThread, this, userMail, pwd);
+    globalThread.detach();
+}
+
+void MainWindow::update()
+{
+    if (messages.size() != 0)
+    {
+        tableViewEmails(messages);
+    }
 }

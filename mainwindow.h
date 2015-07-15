@@ -6,6 +6,7 @@
 #include <vector>
 #include "mail.h"
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -21,10 +22,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QStandardItemModel* tableViewEmails();
+    QStandardItemModel* tableViewEmails(vector<vector<string> > listMessages);
     void setMail(Mail const & mail);
 
     void prepareMail();
+
+    void fetchMails(string _user, string _password);
+    void mailThread(string userMail, string pwd);
+    void runThread(string userMail, string pwd);
+
 
 private slots:
     void on_tableView_doubleClicked(const QModelIndex &index);
@@ -35,6 +41,8 @@ private slots:
 
     void on_delete_attachment_clicked();
 
+    void update();
+
 private:
     Ui::MainWindow *ui;
     vector<string> pathes;
@@ -42,6 +50,7 @@ private:
 
     string userEmail;
     string userPwd;
+    vector<vector<string>> messages;
 
     QStringList list;
 };
