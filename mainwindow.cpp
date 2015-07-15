@@ -53,11 +53,11 @@ MainWindow::MainWindow(QWidget *parent) :
     userPwd = dialog.getpassword().toStdString();
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->horizontalHeader()->hide();
     ui->tableView->verticalHeader()->hide();
 
-    //prepareMail();
+    prepareMail();
     tableViewEmails();
+    mail.runThread(userEmail, userPwd);
 }
 
 MainWindow::~MainWindow()
@@ -178,7 +178,7 @@ void MainWindow::on_file_explorer_btn_clicked()
 
 void MainWindow::prepareMail()
 {
-    Mail _mail("smtp.gmail.com", 587, userEmail, userPwd);
+    Mail _mail("pop.gmail.com", 995, userEmail, userPwd);
 
     mail = _mail;
 }

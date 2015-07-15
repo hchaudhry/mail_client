@@ -164,7 +164,7 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
         //count messages
         int totalMessages = session.messageCount();
 
-        std::ifstream inFile("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt");
+        std::ifstream inFile("/home/hussam/Bureau/cm/mail_gui/mail/" + user + ".txt");
         int numFromFile = std::count(std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>(), '\n');
 
         if(numFromFile != totalMessages || numFromFile == NULL)
@@ -177,7 +177,7 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
             session.listMessages(messages);
 
             ofstream myfile;
-            myfile.open ("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", ios::out | ios::app);
+            myfile.open ("/home/hussam/Bureau/cm/mail_gui/mail/" + user + ".txt", ios::out | ios::app);
 
             if (!myfile.is_open())
             {
@@ -224,19 +224,18 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
     return listMessages;
 }
 
-void Mail::mailThread()
+void Mail::mailThread(string userMail, string pwd)
 {
     while (1) {
-        std::thread thread(&Mail::fetch, this, "pop.gmail.com", 995, "chaudhry.tablette", "");
+        std::thread thread(&Mail::fetch, this, "pop.gmail.com", 995, userMail, pwd);
         thread.join();
-        //thread.detach();
         std::this_thread::sleep_for (std::chrono::seconds(15));
     }
 }
 
-void Mail::runThread()
+void Mail::runThread(string userMail, string pwd)
 {
-    std::thread globalThread(&Mail::mailThread, this);
+    std::thread globalThread(&Mail::mailThread, this, userMail, pwd);
     globalThread.detach();
 }
 
