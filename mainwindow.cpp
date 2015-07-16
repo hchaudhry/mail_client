@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     prepareMail();
 
-    messages = mail.fetch(popServer, popPort, userEmail, userPwd);
+    messages = mail.fetch(popServer, popPort, userEmail, userPwd, 1);
     tableViewEmails(messages);
 
     runThread(userEmail, userPwd);
@@ -203,7 +203,7 @@ void MainWindow::on_delete_attachment_clicked()
 void MainWindow::fetchMails(string _user, string _password)
 {
     vector<vector<string>> mess;
-    mess = mail.fetch(popServer, popPort, _user, _password);
+    mess = mail.fetch(popServer, popPort, _user, _password, 0);
     messages.insert(messages.end(), mess.begin(), mess.end());
 
 }

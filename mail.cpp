@@ -126,7 +126,7 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
     return returnValue;
 }
 
-vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string _password)
+vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string _password, int start)
 {
     host = _host;
     port = _port;
@@ -154,6 +154,14 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
         std::ifstream inFile("/home/hussam/Bureau/cm/mail_gui/mail/" + user + ".txt");
         int numFromFile = std::count(std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>(), '\n');
 
+        if (start == 1)
+        {
+            numFromFile = 0;
+            std::ofstream ofs;
+            ofs.open("/home/hussam/Bureau/cm/mail_gui/mail/" + user + ".txt", std::ofstream::out | std::ofstream::trunc);
+            ofs.close();
+        }
+
         if(numFromFile != totalMessages || numFromFile == NULL)
         {
             if(numFromFile == NULL)
@@ -165,11 +173,6 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
 
             ofstream myfile;
             myfile.open ("/home/hussam/Bureau/cm/mail_gui/mail/" + user + ".txt", ios::out | ios::app);
-
-            if (!myfile.is_open())
-            {
-                cout << "Error opening file";
-            }
 
             auto it = messages.begin();
 
