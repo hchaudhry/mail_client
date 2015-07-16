@@ -75,6 +75,13 @@
     <item row="3" column="1" rowspan="4" colspan="3">
      <widget class="QTextEdit" name="email_conten_box"/>
     </item>
+    <item row="4" column="0">
+     <widget class="QPushButton" name="add_contact">
+      <property name="text">
+       <string>Ajouter</string>
+      </property>
+     </widget>
+    </item>
    </layout>
    <zorder>label</zorder>
    <zorder>to_textbox</zorder>
@@ -87,6 +94,7 @@
    <zorder>delete_attachment</zorder>
    <zorder>file_explorer_btn</zorder>
    <zorder>sendButton</zorder>
+   <zorder>add_contact</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

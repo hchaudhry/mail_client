@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     mystring.cpp \
     clientinfodialog.cpp \
     emailsenddialog.cpp \
-    emailsendfaildialog.cpp
+    emailsendfaildialog.cpp \
+    addcontactdialog.cpp
 
 HEADERS  += mainwindow.h \
     mail.h \
@@ -45,13 +46,15 @@ HEADERS  += mainwindow.h \
     utf8.h \
     clientinfodialog.h \
     emailsenddialog.h \
-    emailsendfaildialog.h
+    emailsendfaildialog.h \
+    addcontactdialog.h
 
 FORMS    += mainwindow.ui \
     fileexplorerdialog.ui \
     clientinfodialog.ui \
     emailsenddialog.ui \
-    emailsendfaildialog.ui
+    emailsendfaildialog.ui \
+    addcontactdialog.ui
 
 unix:!macx: LIBS += -L$$PWD/lib/ -lPocoNet
 

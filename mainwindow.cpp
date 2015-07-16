@@ -12,6 +12,7 @@
 #include "clientinfodialog.h"
 #include "emailsenddialog.h"
 #include "emailsendfaildialog.h"
+#include "addcontactdialog.h"
 
 #include <Poco/Net/MailMessage.h>
 #include <Poco/Net/MailRecipient.h>
@@ -37,6 +38,8 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QSqlQueryModel>
+#include <QtSql>
+#include <QSqlQuery>
 #include <QTimer>
 
 using namespace std;
@@ -57,6 +60,28 @@ MainWindow::MainWindow(QWidget *parent) :
     smtpPort = dialog.getSmtpPort().toInt();
     popServer = dialog.getPopServer().toStdString();
     popPort = dialog.getPopPort().toInt();
+
+    //database = new QSqlDatabase();
+    database = QSqlDatabase::addDatabase("QSQLITE");
+    database.setDatabaseName("./mails.db");
+
+    if (!database.open())
+    {
+        qDebug() << "Error openning DB";
+    }
+
+    QSqlQuery query("insert into user (email) values (:email)");
+    query.bindValue(0, QString::fromStdString(userEmail));
+    query.exec();
+
+    QSqlQuery q;
+    q.prepare( "SELECT id FROM user WHERE email = ?" );
+    q.bindValue(0, QString::fromStdString(userEmail));
+
+    while(q.next())
+    {
+        idUser = q.value(0).toInt();
+    }
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->verticalHeader()->hide();
@@ -229,4 +254,34 @@ void MainWindow::update()
     {
         tableViewEmails(messages);
     }
+}
+
+void MainWindow::on_add_contact_clicked()
+{
+    AddContactDialog dialog;
+    dialog.setModal(true);
+    dialog.exec();
+
+    QString lastName = dialog.getLastName();
+    QString firstName = dialog.getFirstName();
+    QString email = dialog.getLastName();
+
+    QSqlQuery query("insert into contact (lastName, firstName, email, id_user) values (:lastName, :firstName, :email, :id_user)");
+    query.bindValue(0, lastName);
+    query.bindValue(1, firstName);
+    query.bindValue(2, email);
+    query.bindValue(3, idUser);
+    query.exec();
+
+    QSqlQuery q;
+    q.prepare( "SELECT * FROM contact WHERE id_user = ?" );
+    q.bindValue(0, idUser);
+    q.exec();
+
+    while(q.next())
+    {
+        QString user =  q.value(1).toString();
+        qDebug() << user;
+    }
+
 }

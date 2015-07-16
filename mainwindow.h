@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <QtSql>
+
 using namespace std;
 
 namespace Ui {
@@ -43,6 +45,8 @@ private slots:
 
     void update();
 
+    void on_add_contact_clicked();
+
 private:
     Ui::MainWindow *ui;
     vector<string> pathes;
@@ -57,6 +61,9 @@ private:
     vector<vector<string>> messages;
 
     QStringList list;
+
+    QSqlDatabase database;
+    int idUser;
 };
 
 #endif // MAINWINDOW_H
