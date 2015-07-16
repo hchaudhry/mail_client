@@ -25,7 +25,7 @@ public:
     QStandardItemModel* tableViewEmails(vector<vector<string> > listMessages);
     void setMail(Mail const & mail);
 
-    void prepareMail();
+    void prepareMail();;
 
     void fetchMails(string _user, string _password);
     void mailThread(string userMail, string pwd);
@@ -50,6 +50,10 @@ private:
 
     string userEmail;
     string userPwd;
+    string smtpServer;
+    int smtpPort;
+    string popServer;
+    int popPort;
     vector<vector<string>> messages;
 
     QStringList list;

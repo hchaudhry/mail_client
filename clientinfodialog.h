@@ -17,6 +17,10 @@ public:
 
     QString getemail() {return email;}
     QString getpassword() {return password;}
+    QString getSmtpServer() {return smtpServer;}
+    QString getSmtpPort() {return smtpPort;}
+    QString getPopServer() {return popServer;}
+    QString getPopPort() {return popPort;}
 
 private slots:
     void on_buttonBox_accepted();
@@ -28,6 +32,11 @@ private:
 
     QString email;
     QString password;
+
+    QString smtpServer;
+    QString smtpPort;
+    QString popServer;
+    QString popPort;
 };
 
 #endif // CLIENTINFODIALOG_H

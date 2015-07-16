@@ -47,9 +47,9 @@ public:
     Mail & operator= (Mail const &_mail);
     ~Mail();
 
-    int send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths);
+    int send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths, string smtpServer, int smtpPort);
     vector<vector<string>> fetch(string _host, int _port, string _user, string _password);
-    string getMessageContent(int id, string user, string password);
+    string getMessageContent(int id, string user, string password, string server, int port);
 
     //void mailThread(string userMail, string pwd);
     //void runThread(string userMail, string pwd);

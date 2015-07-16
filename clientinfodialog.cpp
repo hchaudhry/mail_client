@@ -19,6 +19,12 @@ void ClientInfoDialog::on_buttonBox_accepted()
 {
     email = ui->emailText->text();
     password = ui->passwordText->text();
+
+    smtpServer = ui->smtp_server->text();
+    smtpPort = ui->smtp_port->text();
+
+    popServer = ui->pop_server->text();
+    popPort = ui->pop_port->text();
 }
 
 void ClientInfoDialog::on_passwordText_textChanged(const QString &arg1)

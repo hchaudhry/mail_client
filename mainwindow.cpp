@@ -53,17 +53,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     userEmail = dialog.getemail().toStdString();
     userPwd = dialog.getpassword().toStdString();
+    smtpServer = dialog.getSmtpServer().toStdString();
+    smtpPort = dialog.getSmtpPort().toInt();
+    popServer = dialog.getPopServer().toStdString();
+    popPort = dialog.getPopPort().toInt();
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->verticalHeader()->hide();
 
     prepareMail();
 
-    //vector<vector<string>> messages;
-    while (messages.size() == 0)
-    {
-        messages = mail.fetch("pop.gmail.com", 995, userEmail, userPwd);
-    }
+    messages = mail.fetch(popServer, popPort, userEmail, userPwd);
     tableViewEmails(messages);
 
     runThread(userEmail, userPwd);
@@ -79,13 +79,6 @@ MainWindow::~MainWindow()
 
 QStandardItemModel* MainWindow::tableViewEmails(vector<vector<string>> listMessages)
 {
-    /*vector<vector<string>> listMessages;
-
-    while (listMessages.size() == 0)
-    {
-     listMessages = mail.fetch("pop.gmail.com", 995, userEmail, userPwd);
-    }*/
-
     const int numRows = listMessages.size();
     const int numColumns = 4;
 
@@ -129,10 +122,7 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
     //Mail m;
     QString texte;
-
-    while (texte.isEmpty()) {
-        texte = QString::fromStdString(mail.getMessageContent(rowNumber, userEmail, userPwd));
-    }
+    texte = QString::fromStdString(mail.getMessageContent(rowNumber, userEmail, userPwd, popServer, popPort));
 
     ui->to_textbox->setText(index.sibling(rowNumber-1, 1).data().toString());
     ui->subject_textbox->setText(index.sibling(rowNumber-1, 2).data().toString());
@@ -154,7 +144,7 @@ void MainWindow::on_sendButton_clicked()
 
     //Mail mail;
     int isSend;
-    isSend = mail.send(toTextBox.toStdString(), userEmail, subject.toStdString(), "UTF-8", textContent.toStdString(), pathes);
+    isSend = mail.send(toTextBox.toStdString(), userEmail, subject.toStdString(), "UTF-8", textContent.toStdString(), pathes, smtpServer, smtpPort);
 
     if (isSend == 1)
     {
@@ -190,7 +180,7 @@ void MainWindow::on_file_explorer_btn_clicked()
 
 void MainWindow::prepareMail()
 {
-    Mail _mail("pop.gmail.com", 995, userEmail, userPwd);
+    Mail _mail(popServer, popPort, userEmail, userPwd);
 
     mail = _mail;
 }
@@ -213,7 +203,7 @@ void MainWindow::on_delete_attachment_clicked()
 void MainWindow::fetchMails(string _user, string _password)
 {
     vector<vector<string>> mess;
-    mess = mail.fetch("pop.gmail.com", 995, _user, _password);
+    mess = mail.fetch(popServer, popPort, _user, _password);
     messages.insert(messages.end(), mess.begin(), mess.end());
 
 }

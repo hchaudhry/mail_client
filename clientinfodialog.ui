@@ -7,17 +7,51 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>141</height>
+    <height>341</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Serveur SMTP</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLineEdit" name="pop_server"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Port SMTP</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLineEdit" name="smtp_port"/>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Serveur POP</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Port POP</string>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="0">
     <widget class="QLineEdit" name="emailText"/>
    </item>
-   <item row="6" column="0">
+   <item row="14" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -26,6 +60,9 @@
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLineEdit" name="smtp_server"/>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_2">
@@ -47,6 +84,9 @@
       <enum>QLineEdit::Password</enum>
      </property>
     </widget>
+   </item>
+   <item row="13" column="0">
+    <widget class="QLineEdit" name="pop_port"/>
    </item>
   </layout>
  </widget>

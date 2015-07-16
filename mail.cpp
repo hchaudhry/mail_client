@@ -68,20 +68,8 @@ Mail::~Mail()
 
 }
 
-int Mail::send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths)
+int Mail::send(string _to, string _from, string _subject, string _encoding, string _content, vector<string> _paths, string smtpServer, int smtpPort)
 {
-    //string _host, int _port, string _user, string _password,
-    /*host = _host;
-    port = _port;
-    user = _user;
-    pass = _password;*/
-    /*to = _to;
-    from = _from;
-    subject = _subject;
-    subject = MailMessage::encodeWord(subject, _encoding);
-    content = _content;
-    paths = _paths;*/
-
     int returnValue = 0;
 
     MailMessage message;
@@ -92,9 +80,6 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
     message.setContentType("text/plain; charset=UTF-8");
 
     message.addContent(new Poco::Net::StringPartSource(_content), MailMessage::ENCODING_8BIT);
-
-    /*Poco::Net::PartSource* pImagePart = new FilePartSource("/home/hussam/Bureau/cm/mail_gui/mail/uids.txt", "text/plain");
-    message.addAttachment("uids", pImagePart);*/
 
     for(std::vector<string>::iterator it = _paths.begin(); it != _paths.end(); ++it) {
         FileMimeType file;
@@ -114,7 +99,7 @@ int Mail::send(string _to, string _from, string _subject, string _encoding, stri
         Context::Ptr ptrContext = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
         SSLManager::instance().initializeClient(0, ptrHandler, ptrContext);
 
-        SecureSMTPClientSession session("smtp.gmail.com", 587);
+        SecureSMTPClientSession session(smtpServer, smtpPort);
 
         try {
             // TLS begins with an unsecured connection
@@ -155,6 +140,7 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
         // always accept even if error occurred
         SharedPtr<InvalidCertificateHandler> ptrHandler = new AcceptCertificateHandler(false);
         Context::Ptr ptrContext = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+        ptrContext->enableExtendedCertificateVerification(false);
         SSLManager::instance().initializeClient(0, ptrHandler, ptrContext);
         SocketAddress socketAddress(host, port);
         SecureStreamSocket socket(socketAddress, ptrContext);
@@ -223,9 +209,6 @@ vector<vector<string>> Mail::fetch(string _host, int _port, string _user, string
         uninitializeSSL();
     }
 
-    //MainWindow m("d");
-    //m.tableViewEmails(listMessages);
-
     return listMessages;
 }
 
@@ -244,10 +227,10 @@ void Mail::runThread(string userMail, string pwd)
     globalThread.detach();
 }*/
 
-string Mail::getMessageContent(int id, string user, string password)
+string Mail::getMessageContent(int id, string user, string password, string server, int _port)
 {
-    string host = "pop.gmail.com";
-    int port = 995;
+    string host = server;
+    int port = _port;
     string content;
     vector<string> filenames;
     vector<string> attachments;
@@ -257,6 +240,7 @@ string Mail::getMessageContent(int id, string user, string password)
         // always accept even if error occurred
         SharedPtr<InvalidCertificateHandler> ptrHandler = new AcceptCertificateHandler(false);
         Context::Ptr ptrContext = new Context(Context::CLIENT_USE, "", "", "", Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+        ptrContext->enableExtendedCertificateVerification(false);
         SSLManager::instance().initializeClient(0, ptrHandler, ptrContext);
         SocketAddress socketAddress(host, port);
         SecureStreamSocket socket(socketAddress, ptrContext);
