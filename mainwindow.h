@@ -27,12 +27,15 @@ public:
     QStandardItemModel* tableViewEmails(vector<vector<string> > listMessages);
     void setMail(Mail const & mail);
 
-    void prepareMail();;
+    void init();
+    void prepareMail();
 
     void fetchMails(string _user, string _password);
     void mailThread(string userMail, string pwd);
     void runThread(string userMail, string pwd);
 
+    void updateContactList();
+    void checkUserExistInDB(QString _userMail);
 
 private slots:
     void on_tableView_doubleClicked(const QModelIndex &index);
@@ -46,6 +49,10 @@ private slots:
     void update();
 
     void on_add_contact_clicked();
+
+    void on_delete_contact_clicked();
+
+    void on_contact_listview_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
@@ -64,6 +71,8 @@ private:
 
     QSqlDatabase database;
     int idUser;
+
+    QStringList contactList;
 };
 
 #endif // MAINWINDOW_H

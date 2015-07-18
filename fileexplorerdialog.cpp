@@ -34,8 +34,6 @@ void FileExplorerDialog::on_treeView_doubleClicked(const QModelIndex &index)
     this->accept();
 }
 
-
-
 void FileExplorerDialog::on_buttonBox_accepted()
 {
     QModelIndexList list = ui->treeView->selectionModel()->selectedIndexes();

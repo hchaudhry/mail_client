@@ -11,34 +11,79 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Client Emails</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0" rowspan="4" alignment="Qt::AlignLeft">
-     <widget class="QTableView" name="tableView_2"/>
-    </item>
-    <item row="5" column="0" rowspan="2" alignment="Qt::AlignLeft">
+    <item row="8" column="0" rowspan="2" alignment="Qt::AlignLeft">
      <widget class="QListView" name="attachments_listview"/>
     </item>
-    <item row="1" column="2" colspan="2">
+    <item row="2" column="2" colspan="2">
      <widget class="QLineEdit" name="to_textbox"/>
     </item>
-    <item row="2" column="1" alignment="Qt::AlignLeft">
+    <item row="3" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>Subject:</string>
+       <string>Sujet :</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="1" alignment="Qt::AlignLeft">
+    <item row="2" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label">
       <property name="text">
-       <string>To :</string>
+       <string>Destinataire :</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="1" colspan="3">
+    <item row="10" column="0">
+     <widget class="QPushButton" name="delete_attachment">
+      <property name="text">
+       <string>Supprimer</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="2">
+     <widget class="QPushButton" name="file_explorer_btn">
+      <property name="text">
+       <string>Ajouter un fichier</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2" colspan="2">
+     <widget class="QLineEdit" name="subject_textbox"/>
+    </item>
+    <item row="10" column="3">
+     <widget class="QPushButton" name="sendButton">
+      <property name="text">
+       <string>Envoyer</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1" rowspan="6" colspan="3">
+     <widget class="QTextEdit" name="email_conten_box"/>
+    </item>
+    <item row="5" column="0">
+     <widget class="QPushButton" name="add_contact">
+      <property name="text">
+       <string>Ajouter</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QPushButton" name="delete_contact">
+      <property name="text">
+       <string>Supprimer</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Pièce(s) jointe(s)</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="2" colspan="3">
      <widget class="QTableView" name="tableView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -48,39 +93,8 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="2" colspan="2">
-     <widget class="QLineEdit" name="subject_textbox"/>
-    </item>
-    <item row="7" column="0">
-     <widget class="QPushButton" name="delete_attachment">
-      <property name="text">
-       <string>Supprimer</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="2">
-     <widget class="QPushButton" name="file_explorer_btn">
-      <property name="text">
-       <string>Add file</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="3">
-     <widget class="QPushButton" name="sendButton">
-      <property name="text">
-       <string>Send</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1" rowspan="4" colspan="3">
-     <widget class="QTextEdit" name="email_conten_box"/>
-    </item>
-    <item row="4" column="0">
-     <widget class="QPushButton" name="add_contact">
-      <property name="text">
-       <string>Ajouter</string>
-      </property>
-     </widget>
+    <item row="0" column="0" rowspan="5" alignment="Qt::AlignLeft">
+     <widget class="QListView" name="contact_listview"/>
     </item>
    </layout>
    <zorder>label</zorder>
@@ -89,12 +103,14 @@
    <zorder>subject_textbox</zorder>
    <zorder>email_conten_box</zorder>
    <zorder>tableView</zorder>
-   <zorder>tableView_2</zorder>
+   <zorder>contact_listview</zorder>
    <zorder>attachments_listview</zorder>
    <zorder>delete_attachment</zorder>
    <zorder>file_explorer_btn</zorder>
    <zorder>sendButton</zorder>
    <zorder>add_contact</zorder>
+   <zorder>delete_contact</zorder>
+   <zorder>label_4</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

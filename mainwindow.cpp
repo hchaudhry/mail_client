@@ -50,6 +50,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    init();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::init()
+{
     ClientInfoDialog dialog;
     dialog.setModal(true);
     dialog.exec();
@@ -61,27 +71,12 @@ MainWindow::MainWindow(QWidget *parent) :
     popServer = dialog.getPopServer().toStdString();
     popPort = dialog.getPopPort().toInt();
 
-    //database = new QSqlDatabase();
+
     database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName("./mails.db");
+    database.open();
 
-    if (!database.open())
-    {
-        qDebug() << "Error openning DB";
-    }
-
-    QSqlQuery query("insert into user (email) values (:email)");
-    query.bindValue(0, QString::fromStdString(userEmail));
-    query.exec();
-
-    QSqlQuery q;
-    q.prepare( "SELECT id FROM user WHERE email = ?" );
-    q.bindValue(0, QString::fromStdString(userEmail));
-
-    while(q.next())
-    {
-        idUser = q.value(0).toInt();
-    }
+    checkUserExistInDB(QString::fromStdString(userEmail));
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->verticalHeader()->hide();
@@ -97,13 +92,10 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(5000);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
 QStandardItemModel* MainWindow::tableViewEmails(vector<vector<string>> listMessages)
 {
+    std::reverse(listMessages.begin(), listMessages.end());
+
     const int numRows = listMessages.size();
     const int numColumns = 4;
 
@@ -145,7 +137,6 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     int rowNumber = ui->tableView->selectionModel()->currentIndex().row();
     rowNumber = rowNumber + 1;
 
-    //Mail m;
     QString texte;
     texte = QString::fromStdString(mail.getMessageContent(rowNumber, userEmail, userPwd, popServer, popPort));
 
@@ -167,7 +158,6 @@ void MainWindow::on_sendButton_clicked()
     model->setStringList(list);
     ui->attachments_listview->setModel(model);
 
-    //Mail mail;
     int isSend;
     isSend = mail.send(toTextBox.toStdString(), userEmail, subject.toStdString(), "UTF-8", textContent.toStdString(), pathes, smtpServer, smtpPort);
 
@@ -189,7 +179,6 @@ void MainWindow::on_file_explorer_btn_clicked()
     dialog.setModal(true);
     dialog.exec();
     pathes.push_back(dialog.getPathResult().toStdString());
-
 
     // Affiche des fichiers dans la listView en bas à gauche
     QStringListModel *model = new QStringListModel(this);
@@ -264,7 +253,7 @@ void MainWindow::on_add_contact_clicked()
 
     QString lastName = dialog.getLastName();
     QString firstName = dialog.getFirstName();
-    QString email = dialog.getLastName();
+    QString email = dialog.getEmail();
 
     QSqlQuery query("insert into contact (lastName, firstName, email, id_user) values (:lastName, :firstName, :email, :id_user)");
     query.bindValue(0, lastName);
@@ -273,15 +262,92 @@ void MainWindow::on_add_contact_clicked()
     query.bindValue(3, idUser);
     query.exec();
 
+    updateContactList();
+
+}
+
+void MainWindow::updateContactList()
+{
     QSqlQuery q;
     q.prepare( "SELECT * FROM contact WHERE id_user = ?" );
     q.bindValue(0, idUser);
     q.exec();
 
+    QStringListModel *model = new QStringListModel(this);
+    contactList.clear();
+
+    int emailNo = q.record().indexOf("email");
+
     while(q.next())
     {
-        QString user =  q.value(1).toString();
-        qDebug() << user;
+        contactList << q.value(emailNo).toString();
     }
 
+    model->setStringList(contactList);
+    ui->contact_listview->setModel(model);
+}
+
+void MainWindow::on_delete_contact_clicked()
+{
+
+    QModelIndexList list = ui->contact_listview->selectionModel()->selectedIndexes();
+    QString selectedRowText;
+    foreach(const QModelIndex &index, list){
+        selectedRowText = index.data(Qt::DisplayRole ).toString();
+    }
+
+    QSqlQuery query;
+    query.prepare("DELETE FROM contact where id_user = ? AND email = ?");
+    query.bindValue(0, idUser);
+    query.bindValue(1, selectedRowText);
+    query.exec();
+
+    updateContactList();
+}
+
+void MainWindow::on_contact_listview_doubleClicked(const QModelIndex &index)
+{
+    QModelIndexList list = ui->contact_listview->selectionModel()->selectedIndexes();
+    QString selectedRowText;
+    foreach(const QModelIndex &index, list){
+        selectedRowText = index.data(Qt::DisplayRole ).toString();
+    }
+
+    ui->to_textbox->setText(selectedRowText);
+}
+
+void MainWindow::checkUserExistInDB(QString _userMail)
+{
+    QSqlQuery queryFirst;
+    queryFirst.prepare( "SELECT id FROM user WHERE email = ?" );
+    queryFirst.bindValue(0, _userMail);
+    queryFirst.exec();
+
+    idUser = NULL;
+    while(queryFirst.next())
+    {
+        idUser = queryFirst.value(0).toInt();
+
+    }
+
+    if (idUser != 0)
+    {
+        updateContactList();
+    }
+    else
+    {
+        QSqlQuery query("insert into user (email) values (:email)");
+        query.bindValue(0, _userMail);
+        query.exec();
+
+        QSqlQuery q;
+        q.prepare( "SELECT id FROM user WHERE email = ?" );
+        q.bindValue(0, _userMail);
+        q.exec();
+
+        while(q.next())
+        {
+            idUser = q.value(0).toInt();
+        }
+    }
 }

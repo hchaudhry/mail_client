@@ -3,16 +3,6 @@
 using namespace std;
 using namespace custom::utils;
 
-/*MyPartHandler::MyPartHandler()
-{
-
-}
-
-MyPartHandler::~MyPartHandler()
-{
-
-}*/
-
 const vector<string>& MyPartHandler::GetHeaders() {
     return _headers;
 }
