@@ -20,9 +20,6 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     mail.cpp \
     filemimetype.cpp \
-    databasehandler.cpp \
-    userdao.cpp \
-    contact.cpp \
     fileexplorerdialog.cpp \
     myparthandler.cpp \
     mystring.cpp \
@@ -34,9 +31,6 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     mail.h \
     filemimetype.h \
-    databasehandler.h \
-    userdao.h \
-    contact.h \
     fileexplorerdialog.h \
     myparthandler.h \
     mystring.h \
